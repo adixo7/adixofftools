@@ -225,47 +225,54 @@ app.get('/api/account-info', async (req, res) => {
     if (!uid || uid.trim().length < 5) {
       return res.json({ success: false, error: 'Please enter a valid UID.' });
     }
-    const response = await axios.get('https://rizerxinfo1234.vercel.app/player-info', {
-      params: { uid: uid.trim() },
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-      timeout: 15000,
-    });
-    const data = response.data;
-    if (data.error) {
-      return res.json({ success: false, error: data.error });
+
+    let data;
+    try {
+      const response = await axios.get('https://rizerxinfo1234.vercel.app/player-info', {
+        params: { uid: uid.trim() },
+        headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
+        timeout: 15000,
+        validateStatus: () => true,
+      });
+      data = response.data;
+    } catch (err) {
+      console.error('Account info fetch error:', err.message);
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        return res.json({ success: false, error: 'Request timed out. Please try again.' });
+      }
+      return res.json({ success: false, error: 'Could not reach the player info service.' });
     }
-    const basic   = data.basicInfo      || {};
-    const profile = data.profileInfo    || {};
-    const clan    = data.clanBasicInfo  || {};
-    const social  = data.socialInfo     || {};
-    const CDN = 'https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG';
+
+    if (!data || data.error) {
+      const msg = (data && data.error) ? data.error : 'Player not found.';
+      return res.json({ success: false, error: msg });
+    }
+
+    const basic  = data.basicInfo     || {};
+    const clan   = data.clanBasicInfo || {};
+    const CDN    = 'https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG';
+
     return res.json({
       success: true,
       player: {
-        uid:        uid.trim(),
-        name:       basic.nickname       || 'Unknown',
-        level:      basic.level          || '--',
-        exp:        basic.exp            || '--',
-        rank:       basic.rankingPoints  || '--',
-        bp:         basic.badgePoint     || '--',
-        region:     basic.region         || '--',
-        guild:      clan.clanName        || 'No Guild',
+        uid:         uid.trim(),
+        name:        basic.nickname      || 'Unknown',
+        level:       basic.level         || '--',
+        exp:         basic.exp           || '--',
+        rank:        basic.rankingPoints || '--',
+        bp:          basic.badgePoint    || '--',
+        region:      basic.region        || '--',
+        guild:       clan.clanName       || 'No Guild',
         guild_level: clan.clanLevel      || '--',
-        like:       basic.liked          || '--',
-        headPic:    basic.headPic        || null,
-        bannerId:   basic.bannerId       || null,
-        avatarUrl:  basic.headPic  ? `${CDN}/${basic.headPic}.png`  : null,
-        bannerUrl:  basic.bannerId ? `${CDN}/${basic.bannerId}.png` : null,
-        pinUrl:     basic.pinId    ? `${CDN}/${basic.pinId}.png`    : null,
+        like:        basic.liked         || '--',
+        avatarUrl:   basic.headPic  ? `${CDN}/${basic.headPic}.png`  : null,
+        bannerUrl:   basic.bannerId ? `${CDN}/${basic.bannerId}.png` : null,
+        pinUrl:      basic.pinId    ? `${CDN}/${basic.pinId}.png`    : null,
       },
-      raw: data,
     });
   } catch (err) {
     console.error('Account info error:', err.message);
-    if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-      return res.json({ success: false, error: 'Request timed out. Please try again.' });
-    }
-    return res.json({ success: false, error: 'Failed to fetch player info. Try again.' });
+    return res.json({ success: false, error: 'Server error. Please try again.' });
   }
 });
 
