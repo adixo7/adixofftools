@@ -219,55 +219,140 @@ app.post('/api/verify-token', async (req, res) => {
   }
 });
 
+const GARENA_COOKIE_CACHE = { cookie: '', expires: 0 };
+const FF_REGIONS = ['IND','SG','BR','ID','TW','VN','TH','ME','PK','CIS','BD','RU','US'];
+
+async function getGarenaCookie() {
+  if (GARENA_COOKIE_CACHE.cookie && Date.now() < GARENA_COOKIE_CACHE.expires) {
+    return GARENA_COOKIE_CACHE.cookie;
+  }
+  try {
+    const r = await axios.get('https://shop.garena.my/power-station?itemId=1300108&game=100067', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      timeout: 10000,
+      validateStatus: () => true,
+    });
+    const raw = r.headers['set-cookie'] || [];
+    const cookieStr = raw.map(c => c.split(';')[0]).join('; ');
+    GARENA_COOKIE_CACHE.cookie = cookieStr;
+    GARENA_COOKIE_CACHE.expires = Date.now() + 5 * 60 * 1000;
+    return cookieStr;
+  } catch { return ''; }
+}
+
+async function garenaLookup(uid) {
+  const cookie = await getGarenaCookie();
+  const r = await axios.post('https://shop.garena.my/api/auth/player_id_login',
+    { app_id: 100067, login_id: uid },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Origin': 'https://shop.garena.my',
+        'Referer': 'https://shop.garena.my/power-station?itemId=1300108&game=100067',
+        'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120"',
+        'sec-ch-ua-mobile': '?1',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        ...(cookie ? { 'Cookie': cookie } : {}),
+      },
+      timeout: 12000,
+      validateStatus: () => true,
+    }
+  );
+  return r.data;
+}
+
+async function ffStatslookup(uid, region) {
+  const r = await axios.get(`https://freefire-api-six.vercel.app/get_player_stats`, {
+    params: { server: region, uid, matchmode: 'RANKED', gamemode: 'br' },
+    timeout: 10000,
+    validateStatus: () => true,
+  });
+  return r.data;
+}
+
 app.get('/api/account-info', async (req, res) => {
   try {
-    const { uid } = req.query;
+    const { uid, region } = req.query;
     if (!uid || uid.trim().length < 5) {
       return res.json({ success: false, error: 'Please enter a valid UID.' });
     }
+    const uidStr = uid.trim();
 
-    let data;
+    let nickname = null, playerRegion = null, imgUrl = null;
+    let statsData = null;
+
     try {
-      const response = await axios.get('https://rizerxinfo1234.vercel.app/player-info', {
-        params: { uid: uid.trim() },
-        headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
-        timeout: 15000,
-        validateStatus: () => true,
-      });
-      data = response.data;
-    } catch (err) {
-      console.error('Account info fetch error:', err.message);
-      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        return res.json({ success: false, error: 'Request timed out. Please try again.' });
+      const gData = await garenaLookup(uidStr);
+      if (gData && gData.nickname && !gData.url && !gData.error) {
+        nickname    = gData.nickname;
+        playerRegion = gData.region || null;
+        imgUrl      = gData.img_url || null;
+      } else if (gData && gData.url) {
+        console.log('Garena CAPTCHA hit, proceeding without name');
+      } else if (gData && gData.error === 'invalid_id') {
+        return res.json({ success: false, error: 'UID not found. Please check and try again.' });
       }
-      return res.json({ success: false, error: 'Could not reach the player info service.' });
+    } catch (err) {
+      console.error('Garena lookup error:', err.message);
     }
 
-    if (!data || data.error) {
-      const msg = (data && data.error) ? data.error : 'Player not found.';
-      return res.json({ success: false, error: msg });
+    const regionToTry = playerRegion || region || 'IND';
+    const regionsToTry = [regionToTry, ...FF_REGIONS.filter(r => r !== regionToTry)];
+
+    for (const reg of regionsToTry.slice(0, 4)) {
+      try {
+        const sd = await ffStatslookup(uidStr, reg);
+        if (sd && sd.success) {
+          statsData = sd.data;
+          if (!playerRegion) playerRegion = reg;
+          break;
+        }
+      } catch {}
     }
 
-    const basic  = data.basicInfo     || {};
-    const clan   = data.clanBasicInfo || {};
-    const CDN    = 'https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG';
+    if (!nickname && !statsData) {
+      return res.json({ success: false, error: 'Player not found. Check the UID and try again.' });
+    }
+
+    const solo  = statsData?.solostats  || {};
+    const duo   = statsData?.duostats   || {};
+    const squad = statsData?.quadstats  || {};
+
+    const totalKills  = (solo.detailedstats?.kills  || 0) + (duo.detailedstats?.kills  || 0) + (squad.detailedstats?.kills  || 0);
+    const totalGames  = (solo.detailedstats?.matches || 0) + (duo.detailedstats?.matches || 0) + (squad.detailedstats?.matches || 0);
+    const totalWins   = (solo.detailedstats?.wins    || 0) + (duo.detailedstats?.wins    || 0) + (squad.detailedstats?.wins   || 0);
 
     return res.json({
       success: true,
       player: {
-        uid:         uid.trim(),
-        name:        basic.nickname      || 'Unknown',
-        level:       basic.level         || '--',
-        exp:         basic.exp           || '--',
-        rank:        basic.rankingPoints || '--',
-        bp:          basic.badgePoint    || '--',
-        region:      basic.region        || '--',
-        guild:       clan.clanName       || 'No Guild',
-        guild_level: clan.clanLevel      || '--',
-        like:        basic.liked         || '--',
-        avatarUrl:   basic.headPic  ? `${CDN}/${basic.headPic}.png`  : null,
-        bannerUrl:   basic.bannerId ? `${CDN}/${basic.bannerId}.png` : null,
-        pinUrl:      basic.pinId    ? `${CDN}/${basic.pinId}.png`    : null,
+        uid:        uidStr,
+        name:       nickname || 'Player ' + uidStr.slice(-4),
+        region:     playerRegion || '--',
+        avatarUrl:  imgUrl || null,
+        bannerUrl:  null,
+        level:      '--',
+        rank:       '--',
+        bp:         '--',
+        like:       '--',
+        guild:      'N/A',
+        kills:      totalKills  || '--',
+        games:      totalGames  || '--',
+        wins:       totalWins   || '--',
+        kd:         totalKills && (totalGames - totalWins) > 0
+                      ? (totalKills / (totalGames - totalWins)).toFixed(2)
+                      : '--',
+        winRate:    totalGames > 0
+                      ? ((totalWins / totalGames) * 100).toFixed(1) + '%'
+                      : '--',
       },
     });
   } catch (err) {

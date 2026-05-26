@@ -717,16 +717,24 @@
               <div id="acRegion" class="ac-stat-val"></div>
             </div>
             <div class="ac-stat-box">
-              <div class="ac-stat-label"><i class="fas fa-heart"></i> Likes</div>
-              <div id="acLike" class="ac-stat-val"></div>
+              <div class="ac-stat-label"><i class="fas fa-gamepad"></i> Games</div>
+              <div id="acGames" class="ac-stat-val"></div>
             </div>
             <div class="ac-stat-box">
-              <div class="ac-stat-label"><i class="fas fa-star"></i> Badge Points</div>
-              <div id="acBp" class="ac-stat-val"></div>
+              <div class="ac-stat-label"><i class="fas fa-skull-crossbones"></i> Kills</div>
+              <div id="acKills" class="ac-stat-val"></div>
             </div>
             <div class="ac-stat-box">
-              <div class="ac-stat-label"><i class="fas fa-trophy"></i> Rank Points</div>
-              <div id="acRank" class="ac-stat-val"></div>
+              <div class="ac-stat-label"><i class="fas fa-trophy"></i> Wins</div>
+              <div id="acWins" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-crosshairs"></i> K/D Ratio</div>
+              <div id="acKd" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-percent"></i> Win Rate</div>
+              <div id="acWinRate" class="ac-stat-val"></div>
             </div>
           </div>
 
@@ -909,12 +917,14 @@
 
       document.getElementById('acName').textContent       = p.name;
       document.getElementById('acUid').textContent        = 'UID: ' + p.uid;
-      document.getElementById('acLevelBadge').textContent = 'LVL ' + p.level;
-      document.getElementById('acGuild').textContent      = p.guild;
+      document.getElementById('acLevelBadge').textContent = p.region ? '🌍 ' + p.region : 'PLAYER';
+      document.getElementById('acGuild').textContent      = p.guild || 'No Guild';
       document.getElementById('acRegion').textContent     = p.region  || '--';
-      document.getElementById('acLike').textContent       = p.like    || '--';
-      document.getElementById('acBp').textContent         = p.bp      || '--';
-      document.getElementById('acRank').textContent       = p.rank    || '--';
+      document.getElementById('acGames').textContent      = p.games   || '--';
+      document.getElementById('acKills').textContent      = p.kills   || '--';
+      document.getElementById('acWins').textContent       = p.wins    || '--';
+      document.getElementById('acKd').textContent         = p.kd      || '--';
+      document.getElementById('acWinRate').textContent    = p.winRate || '--';
 
       const acBanner = document.getElementById('acBanner');
       const acAvatar = document.getElementById('acAvatar');
