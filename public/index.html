@@ -412,6 +412,12 @@
       transition:top .4s cubic-bezier(.68,-.55,.265,1.55);white-space:nowrap;
     }
 
+    /* ACCOUNT INFO STATS */
+    .ac-stat-box{background:rgba(0,0,0,0.28);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}
+    .ac-stat-label{font-size:.6rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+    .ac-stat-label i{color:var(--blue);font-size:.6rem}
+    .ac-stat-val{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:800;color:#fff}
+
     /* FOOTER */
     .footer{text-align:center;padding:10px;font-size:.6rem;color:var(--txt3);border-top:1px solid var(--bd);background:rgba(8,10,15,0.6);margin-bottom:75px}
     .footer a{color:var(--fire-l);text-decoration:none;font-weight:700}
@@ -476,13 +482,13 @@
         <i class="fas fa-chevron-right tool-arrow"></i>
       </div>
 
-      <!-- Account Info (Coming Soon) -->
-      <div class="tool-card" style="opacity:.65;cursor:default">
-        <span class="tool-badge-soon">SOON</span>
+      <!-- Account Info -->
+      <div class="tool-card" onclick="goPage('account')">
+        <span class="tool-badge-new">LIVE</span>
         <div class="tool-icon ti-blue"><i class="fas fa-user-shield"></i></div>
         <div class="tool-info">
           <div class="tool-name">Account Info</div>
-          <div class="tool-desc">Look up Free Fire player info, stats, guild data and more using UID or token.</div>
+          <div class="tool-desc">Look up Free Fire player info, stats, guild data and more using UID.</div>
           <div class="tool-tags">
             <span class="ttag">Player Stats</span>
             <span class="ttag">Guild Info</span>
@@ -645,6 +651,98 @@
   <div class="footer">&copy; 2025 AdixOffTools — Free Fire Token Generator</div>
 </div>
 
+<!-- ══════════════════════════════
+     PAGE: ACCOUNT INFO
+══════════════════════════════ -->
+<div id="page-account" class="page">
+
+  <div class="token-hero">
+    <div class="th-badge"><i class="fas fa-user-shield"></i> Account Info</div>
+    <div class="th-title">Player Lookup</div>
+    <div class="th-sub">Enter any Free Fire UID to view player stats, level, guild info and more.</div>
+  </div>
+
+  <div class="con">
+    <div class="glass-card">
+      <div class="slabel"><i class="fas fa-id-badge"></i> Enter Player UID</div>
+      <div class="input-row" style="margin-bottom:8px">
+        <input type="number" id="uidInput" class="ibox"
+          placeholder="e.g. 1234567890"
+          autocomplete="off" style="padding-right:38px">
+        <button class="input-x" onclick="document.getElementById('uidInput').value=''"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div style="font-size:.65rem;color:var(--txt3);margin-bottom:14px"><i class="fas fa-circle-info" style="color:var(--blue)"></i> Works for all Free Fire regions</div>
+      <button id="lookupBtn" onclick="lookupAccount()" class="gen-btn" style="background:linear-gradient(135deg,#38bdf8 0%,#3b82f6 50%,#38bdf8 100%);box-shadow:0 6px 24px rgba(56,189,248,0.25)">
+        <i class="fas fa-magnifying-glass"></i> LOOKUP PLAYER
+      </button>
+    </div>
+
+    <!-- RESULT CARD (hidden until lookup) -->
+    <div id="accountResult" style="display:none">
+      <div class="glass-card" style="border-color:rgba(56,189,248,0.25);padding:0;overflow:hidden">
+
+        <!-- BANNER -->
+        <div id="acBannerWrap" style="position:relative;width:100%;height:110px;background:linear-gradient(135deg,#0d1117,#161d2b);overflow:hidden">
+          <img id="acBanner" src="" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s" onerror="this.style.display='none'">
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(8,10,15,0.9))"></div>
+          <!-- Avatar -->
+          <div id="acAvatarWrap" style="position:absolute;bottom:-30px;left:20px;width:72px;height:72px;border-radius:14px;border:3px solid rgba(56,189,248,0.5);background:var(--bg3);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.5)">
+            <img id="acAvatar" src="" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s" onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <!-- INFO -->
+        <div style="padding:40px 18px 18px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+            <div>
+              <div id="acName" style="font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:#fff;margin-bottom:3px"></div>
+              <div id="acUid" style="font-family:monospace;font-size:.7rem;color:var(--txt3)"></div>
+            </div>
+            <div id="acLevelBadge" style="background:linear-gradient(135deg,var(--fire),var(--fire-d));padding:4px 12px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:800;color:#fff;white-space:nowrap"></div>
+          </div>
+
+          <!-- GUILD ROW -->
+          <div id="acGuildRow" style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+            <i class="fas fa-shield-halved" style="color:var(--blue);font-size:.9rem"></i>
+            <div>
+              <div style="font-size:.62rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px">Guild</div>
+              <div id="acGuild" style="font-size:.82rem;font-weight:700;color:#fff;margin-top:1px"></div>
+            </div>
+          </div>
+
+          <!-- STATS GRID -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-signal"></i> Region</div>
+              <div id="acRegion" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-heart"></i> Likes</div>
+              <div id="acLike" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-star"></i> Badge Points</div>
+              <div id="acBp" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-trophy"></i> Rank Points</div>
+              <div id="acRank" class="ac-stat-val"></div>
+            </div>
+          </div>
+
+          <!-- COPY UID -->
+          <button onclick="copyToClip(document.getElementById('acUid').textContent.replace('UID: ',''))" class="mbtn mbtn-dark" style="width:100%;padding:10px">
+            <i class="fas fa-copy"></i> Copy UID
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">&copy; 2025 AdixOffTools — Free Fire Account Info</div>
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="bnav">
   <a class="nitem active" id="nav-home" onclick="goPage('home')">
@@ -652,6 +750,9 @@
   </a>
   <a class="nitem" id="nav-token" onclick="goPage('token')">
     <div class="niw"><i class="fas fa-key"></i></div><span>Token</span>
+  </a>
+  <a class="nitem" id="nav-account" onclick="goPage('account')">
+    <div class="niw"><i class="fas fa-user-shield"></i></div><span>Account</span>
   </a>
 </nav>
 
@@ -779,6 +880,64 @@
   document.getElementById('urlInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') generateToken();
   });
+
+  document.getElementById('uidInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') lookupAccount();
+  });
+
+  /* ── ACCOUNT LOOKUP ── */
+  async function lookupAccount() {
+    const uid = document.getElementById('uidInput').value.trim();
+    if (!uid) { toast('Enter a UID first!', true); return; }
+
+    const btn = document.getElementById('lookupBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> SEARCHING...';
+    btn.disabled = true;
+    document.getElementById('accountResult').style.display = 'none';
+
+    try {
+      const res  = await fetch(`/api/account-info?uid=${encodeURIComponent(uid)}`);
+      const data = await res.json();
+
+      if (!data.success) {
+        toast(data.error || 'Player not found.', true);
+        return;
+      }
+
+      const p = data.player;
+
+      document.getElementById('acName').textContent       = p.name;
+      document.getElementById('acUid').textContent        = 'UID: ' + p.uid;
+      document.getElementById('acLevelBadge').textContent = 'LVL ' + p.level;
+      document.getElementById('acGuild').textContent      = p.guild;
+      document.getElementById('acRegion').textContent     = p.region  || '--';
+      document.getElementById('acLike').textContent       = p.like    || '--';
+      document.getElementById('acBp').textContent         = p.bp      || '--';
+      document.getElementById('acRank').textContent       = p.rank    || '--';
+
+      const acBanner = document.getElementById('acBanner');
+      const acAvatar = document.getElementById('acAvatar');
+
+      if (p.bannerUrl) {
+        acBanner.src = p.bannerUrl;
+        acBanner.onload = () => { acBanner.style.opacity = '1'; };
+      }
+      if (p.avatarUrl) {
+        acAvatar.src = p.avatarUrl;
+        acAvatar.onload = () => { acAvatar.style.opacity = '1'; };
+      }
+
+      document.getElementById('accountResult').style.display = 'block';
+      document.getElementById('accountResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      toast('Player found!');
+    } catch {
+      toast('Network error. Please try again.', true);
+    } finally {
+      btn.innerHTML = orig;
+      btn.disabled  = false;
+    }
+  }
 </script>
 </body>
 </html>

@@ -219,6 +219,56 @@ app.post('/api/verify-token', async (req, res) => {
   }
 });
 
+app.get('/api/account-info', async (req, res) => {
+  try {
+    const { uid } = req.query;
+    if (!uid || uid.trim().length < 5) {
+      return res.json({ success: false, error: 'Please enter a valid UID.' });
+    }
+    const response = await axios.get('https://rizerxinfo1234.vercel.app/player-info', {
+      params: { uid: uid.trim() },
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      timeout: 15000,
+    });
+    const data = response.data;
+    if (data.error) {
+      return res.json({ success: false, error: data.error });
+    }
+    const basic   = data.basicInfo      || {};
+    const profile = data.profileInfo    || {};
+    const clan    = data.clanBasicInfo  || {};
+    const social  = data.socialInfo     || {};
+    const CDN = 'https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG';
+    return res.json({
+      success: true,
+      player: {
+        uid:        uid.trim(),
+        name:       basic.nickname       || 'Unknown',
+        level:      basic.level          || '--',
+        exp:        basic.exp            || '--',
+        rank:       basic.rankingPoints  || '--',
+        bp:         basic.badgePoint     || '--',
+        region:     basic.region         || '--',
+        guild:      clan.clanName        || 'No Guild',
+        guild_level: clan.clanLevel      || '--',
+        like:       basic.liked          || '--',
+        headPic:    basic.headPic        || null,
+        bannerId:   basic.bannerId       || null,
+        avatarUrl:  basic.headPic  ? `${CDN}/${basic.headPic}.png`  : null,
+        bannerUrl:  basic.bannerId ? `${CDN}/${basic.bannerId}.png` : null,
+        pinUrl:     basic.pinId    ? `${CDN}/${basic.pinId}.png`    : null,
+      },
+      raw: data,
+    });
+  } catch (err) {
+    console.error('Account info error:', err.message);
+    if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+      return res.json({ success: false, error: 'Request timed out. Please try again.' });
+    }
+    return res.json({ success: false, error: 'Failed to fetch player info. Try again.' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
