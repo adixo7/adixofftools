@@ -431,7 +431,8 @@ app.get('/api/send-likes', async (req, res) => {
       return res.json({ success: false, error: 'Please select a region.' });
     }
 
-    const r = await axios.get('http://localhost:5001/like', {
+    const likesApiBase = (process.env.LIKES_API_URL || 'https://star-like-50.vercel.app').replace(/\/$/, '');
+    const r = await axios.get(`${likesApiBase}/like`, {
       params: { uid: uid.trim(), server_name: region.toUpperCase() },
       headers: { 'Accept': 'application/json' },
       timeout: 60000,
