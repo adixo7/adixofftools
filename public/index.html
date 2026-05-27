@@ -172,6 +172,16 @@
       padding:2px 7px;border-radius:4px;
       background:rgba(255,255,255,0.07);color:var(--txt3);border:1px solid var(--bd);
     }
+    .tool-badge-maint{
+      position:absolute;top:12px;right:12px;
+      font-size:.52rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+      padding:2px 7px;border-radius:4px;
+      background:rgba(251,191,36,0.18);color:var(--gold);border:1px solid rgba(251,191,36,0.35);
+    }
+    .tool-card-maint{
+      opacity:.55;cursor:not-allowed;pointer-events:none;filter:grayscale(0.3);
+    }
+    .tool-card-maint:hover{transform:none;box-shadow:none;border-color:rgba(249,115,22,0.18)}
 
     /* CONNECT SECTION */
     .connect-label{
@@ -456,7 +466,7 @@
 
     <!-- STATS -->
     <div class="stat-strip">
-      <div class="stat-box"><div class="stat-v">3+</div><div class="stat-l">Tools</div></div>
+      <div class="stat-box"><div class="stat-v">4+</div><div class="stat-l">Tools</div></div>
       <div class="stat-box"><div class="stat-v">6+</div><div class="stat-l">Regions</div></div>
       <div class="stat-box"><div class="stat-v">100%</div><div class="stat-l">Free</div></div>
     </div>
@@ -482,22 +492,37 @@
         <i class="fas fa-chevron-right tool-arrow"></i>
       </div>
 
-      <!-- Account Info -->
-      <div class="tool-card" onclick="goPage('account')">
-        <span class="tool-badge-new">LIVE</span>
+      <!-- Account Info — MAINTENANCE -->
+      <div class="tool-card tool-card-maint">
+        <span class="tool-badge-maint">⚙️ MAINTENANCE</span>
         <div class="tool-icon ti-blue"><i class="fas fa-user-shield"></i></div>
         <div class="tool-info">
           <div class="tool-name">Account Info</div>
-          <div class="tool-desc">Look up Free Fire player info, stats, guild data and more using UID.</div>
+          <div class="tool-desc">Temporarily under maintenance. Will be back soon.</div>
           <div class="tool-tags">
             <span class="ttag">Player Stats</span>
-            <span class="ttag">Guild Info</span>
             <span class="ttag">UID Lookup</span>
+          </div>
+        </div>
+        <i class="fas fa-wrench tool-arrow"></i>
+      </div>
+
+      <!-- Guild Info -->
+      <div class="tool-card" onclick="goPage('guild')">
+        <span class="tool-badge-new">LIVE</span>
+        <div class="tool-icon ti-gold"><i class="fas fa-shield-halved"></i></div>
+        <div class="tool-info">
+          <div class="tool-name">Guild Info</div>
+          <div class="tool-desc">Look up any Free Fire guild by ID — members, level, leader & activity.</div>
+          <div class="tool-tags">
+            <span class="ttag">Guild ID</span>
+            <span class="ttag">Members</span>
+            <span class="ttag">Leader</span>
+            <span class="ttag">All Regions</span>
           </div>
         </div>
         <i class="fas fa-chevron-right tool-arrow"></i>
       </div>
-
 
     </div>
 
@@ -751,6 +776,127 @@
   <div class="footer">&copy; 2025 AdixOffTools — Free Fire Account Info</div>
 </div>
 
+<!-- ══════════════════════════════
+     PAGE: GUILD INFO
+══════════════════════════════ -->
+<div id="page-guild" class="page">
+
+  <div class="token-hero">
+    <div class="th-badge"><i class="fas fa-shield-halved"></i> Guild Info</div>
+    <div class="th-title">Guild Lookup</div>
+    <div class="th-sub">Enter any Free Fire Guild ID to view guild name, level, members, leader & activity.</div>
+    <div class="tag-row">
+      <span class="tag">All Regions</span>
+      <span class="tag">Guild ID</span>
+      <span class="tag">Free &amp; Fast</span>
+    </div>
+  </div>
+
+  <div class="con">
+    <div class="glass-card">
+      <div class="slabel"><i class="fas fa-id-badge"></i> Enter Guild ID</div>
+      <div class="input-row" style="margin-bottom:8px">
+        <input type="number" id="guildIdInput" class="ibox"
+          placeholder="e.g. 3001234567"
+          autocomplete="off" style="padding-right:38px">
+        <button class="input-x" onclick="document.getElementById('guildIdInput').value=''"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div class="igrp" style="margin-bottom:14px">
+        <div class="slabel" style="margin-bottom:6px"><i class="fas fa-globe"></i> Select Region (optional)</div>
+        <select id="guildRegionSelect" class="ibox">
+          <option value="IND">🇮🇳 India (IND)</option>
+          <option value="ID">🇮🇩 Indonesia (ID)</option>
+          <option value="SG">🇸🇬 Singapore (SG)</option>
+          <option value="BR">🇧🇷 Brazil (BR)</option>
+          <option value="TH">🇹🇭 Thailand (TH)</option>
+          <option value="VN">🇻🇳 Vietnam (VN)</option>
+          <option value="TW">🇹🇼 Taiwan (TW)</option>
+          <option value="ME">🌍 Middle East (ME)</option>
+          <option value="PK">🇵🇰 Pakistan (PK)</option>
+          <option value="BD">🇧🇩 Bangladesh (BD)</option>
+          <option value="US">🇺🇸 North America (US)</option>
+          <option value="CIS">🌐 CIS</option>
+          <option value="RU">🇷🇺 Russia (RU)</option>
+        </select>
+      </div>
+
+      <div style="font-size:.65rem;color:var(--txt3);margin-bottom:14px"><i class="fas fa-circle-info" style="color:var(--gold)"></i> Auto-detects region if wrong selection</div>
+      <button id="guildBtn" onclick="lookupGuild()" class="gen-btn" style="background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#fbbf24 100%);box-shadow:0 6px 24px rgba(251,191,36,0.25);color:#000">
+        <i class="fas fa-magnifying-glass"></i> LOOKUP GUILD
+      </button>
+    </div>
+
+    <!-- GUILD RESULT (hidden until lookup) -->
+    <div id="guildResult" style="display:none">
+      <div class="glass-card" style="border-color:rgba(251,191,36,0.28);padding:0;overflow:hidden">
+
+        <!-- GUILD HEADER BANNER -->
+        <div style="position:relative;width:100%;height:80px;background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(245,158,11,0.25));overflow:hidden">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.06;font-size:5rem"><i class="fas fa-shield-halved"></i></div>
+          <div id="guildAvatarWrap" style="position:absolute;bottom:-28px;left:20px;width:64px;height:64px;border-radius:14px;border:3px solid rgba(251,191,36,0.5);background:var(--bg3);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center">
+            <img id="guildAvatar" src="" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s" onerror="this.style.display='none'">
+            <i id="guildAvatarIcon" class="fas fa-shield-halved" style="color:var(--gold);font-size:1.6rem;position:absolute"></i>
+          </div>
+        </div>
+
+        <div style="padding:36px 18px 18px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+            <div>
+              <div id="guildName" style="font-family:'Orbitron',sans-serif;font-size:.98rem;font-weight:900;color:#fff;margin-bottom:3px"></div>
+              <div id="guildIdDisplay" style="font-family:monospace;font-size:.68rem;color:var(--txt3)"></div>
+            </div>
+            <div id="guildLevelBadge" style="background:linear-gradient(135deg,var(--gold),#f59e0b);padding:4px 12px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:800;color:#000;white-space:nowrap"></div>
+          </div>
+
+          <!-- LEADER ROW -->
+          <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.22);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+            <i class="fas fa-crown" style="color:var(--gold);font-size:.9rem"></i>
+            <div>
+              <div style="font-size:.6rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px">Guild Leader</div>
+              <div id="guildLeader" style="font-size:.82rem;font-weight:700;color:#fff;margin-top:1px"></div>
+            </div>
+          </div>
+
+          <!-- DESCRIPTION (if any) -->
+          <div id="guildDescRow" style="display:none;background:rgba(0,0,0,0.25);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;margin-bottom:12px">
+            <div style="font-size:.6rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px"><i class="fas fa-quote-left" style="color:var(--gold)"></i> Description</div>
+            <div id="guildDesc" style="font-size:.75rem;color:var(--txt2);line-height:1.55"></div>
+          </div>
+
+          <!-- STATS GRID -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-signal" style="color:var(--gold)"></i> Region</div>
+              <div id="guildRegion" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-users" style="color:var(--gold)"></i> Members</div>
+              <div id="guildMembers" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-person-military-rifle" style="color:var(--gold)"></i> Capacity</div>
+              <div id="guildCapacity" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-bolt" style="color:var(--gold)"></i> Activity</div>
+              <div id="guildActivity" class="ac-stat-val"></div>
+            </div>
+          </div>
+
+          <!-- COPY ID -->
+          <button onclick="copyToClip(document.getElementById('guildIdDisplay').textContent.replace('Guild ID: ',''))" class="mbtn mbtn-dark" style="width:100%;padding:10px">
+            <i class="fas fa-copy"></i> Copy Guild ID
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">&copy; 2025 AdixOffTools — Free Fire Guild Info</div>
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="bnav">
   <a class="nitem active" id="nav-home" onclick="goPage('home')">
@@ -761,6 +907,9 @@
   </a>
   <a class="nitem" id="nav-account" onclick="goPage('account')">
     <div class="niw"><i class="fas fa-user-shield"></i></div><span>Account</span>
+  </a>
+  <a class="nitem" id="nav-guild" onclick="goPage('guild')">
+    <div class="niw"><i class="fas fa-shield-halved"></i></div><span>Guild</span>
   </a>
 </nav>
 
@@ -893,6 +1042,10 @@
     if (e.key === 'Enter') lookupAccount();
   });
 
+  document.getElementById('guildIdInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') lookupGuild();
+  });
+
   /* ── ACCOUNT LOOKUP ── */
   async function lookupAccount() {
     const uid = document.getElementById('uidInput').value.trim();
@@ -941,6 +1094,67 @@
       document.getElementById('accountResult').style.display = 'block';
       document.getElementById('accountResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       toast('Player found!');
+    } catch {
+      toast('Network error. Please try again.', true);
+    } finally {
+      btn.innerHTML = orig;
+      btn.disabled  = false;
+    }
+  }
+
+  /* ── GUILD LOOKUP ── */
+  async function lookupGuild() {
+    const guildid = document.getElementById('guildIdInput').value.trim();
+    const region  = document.getElementById('guildRegionSelect').value;
+    if (!guildid) { toast('Enter a Guild ID first!', true); return; }
+
+    const btn  = document.getElementById('guildBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> SEARCHING...';
+    btn.disabled  = true;
+    document.getElementById('guildResult').style.display = 'none';
+
+    try {
+      const res  = await fetch(`/api/guild-info?guildid=${encodeURIComponent(guildid)}&region=${encodeURIComponent(region)}`);
+      const data = await res.json();
+
+      if (!data.success) {
+        toast(data.error || 'Guild not found.', true);
+        return;
+      }
+
+      const g = data.guild;
+      document.getElementById('guildName').textContent       = g.name;
+      document.getElementById('guildIdDisplay').textContent  = 'Guild ID: ' + g.id;
+      document.getElementById('guildLevelBadge').textContent = 'LV ' + g.level;
+      document.getElementById('guildLeader').textContent     = g.leader + (g.leaderId !== '--' ? '  #' + g.leaderId : '');
+      document.getElementById('guildRegion').textContent     = g.region  || '--';
+      document.getElementById('guildMembers').textContent    = g.members || '--';
+      document.getElementById('guildCapacity').textContent   = g.capacity || '--';
+      document.getElementById('guildActivity').textContent   = g.activity || '--';
+
+      const descRow = document.getElementById('guildDescRow');
+      if (g.description) {
+        document.getElementById('guildDesc').textContent = g.description;
+        descRow.style.display = 'block';
+      } else {
+        descRow.style.display = 'none';
+      }
+
+      const guildAvatar = document.getElementById('guildAvatar');
+      const guildIcon   = document.getElementById('guildAvatarIcon');
+      if (g.avatarUrl) {
+        guildAvatar.src = g.avatarUrl;
+        guildAvatar.onload = () => { guildAvatar.style.opacity = '1'; guildIcon.style.display = 'none'; };
+        guildAvatar.onerror = () => { guildAvatar.style.display = 'none'; guildIcon.style.display = 'block'; };
+      } else {
+        guildAvatar.style.display = 'none';
+        guildIcon.style.display   = 'block';
+      }
+
+      document.getElementById('guildResult').style.display = 'block';
+      document.getElementById('guildResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      toast('Guild found!');
     } catch {
       toast('Network error. Please try again.', true);
     } finally {

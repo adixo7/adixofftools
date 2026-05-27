@@ -361,6 +361,60 @@ app.get('/api/account-info', async (req, res) => {
   }
 });
 
+app.get('/api/guild-info', async (req, res) => {
+  try {
+    const { guildid, region } = req.query;
+    if (!guildid || guildid.trim().length < 3) {
+      return res.json({ success: false, error: 'Please enter a valid Guild ID.' });
+    }
+    const gidStr = guildid.trim();
+    const regionToTry = region || 'IND';
+    const regionsToTry = [regionToTry, ...FF_REGIONS.filter(r => r !== regionToTry)];
+
+    let guildData = null;
+    let foundRegion = null;
+
+    for (const reg of regionsToTry.slice(0, 5)) {
+      try {
+        const r = await axios.get('https://freefire-api-six.vercel.app/get_guild_info', {
+          params: { server: reg, guildid: gidStr },
+          timeout: 10000,
+          validateStatus: () => true,
+        });
+        if (r.data && r.data.success && r.data.data) {
+          guildData = r.data.data;
+          foundRegion = reg;
+          break;
+        }
+      } catch {}
+    }
+
+    if (!guildData) {
+      return res.json({ success: false, error: 'Guild not found. Please check the Guild ID and try again.' });
+    }
+
+    return res.json({
+      success: true,
+      guild: {
+        id: gidStr,
+        name: guildData.name || guildData.guild_name || 'Unknown Guild',
+        level: guildData.level || guildData.guild_level || '--',
+        region: foundRegion || '--',
+        members: guildData.member_num || guildData.members || '--',
+        capacity: guildData.capacity || guildData.max_member || '--',
+        leader: guildData.leader_name || guildData.leader || '--',
+        leaderId: guildData.leader_id || '--',
+        activity: guildData.guild_activity || guildData.activity || '--',
+        description: guildData.description || guildData.guild_description || '',
+        avatarUrl: guildData.guild_logo || guildData.avatar || null,
+      },
+    });
+  } catch (err) {
+    console.error('Guild info error:', err.message);
+    return res.json({ success: false, error: 'Server error. Please try again.' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
