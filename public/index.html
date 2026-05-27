@@ -875,12 +875,24 @@
               <div id="guildMembers" class="ac-stat-val"></div>
             </div>
             <div class="ac-stat-box">
-              <div class="ac-stat-label"><i class="fas fa-person-military-rifle" style="color:var(--gold)"></i> Capacity</div>
-              <div id="guildCapacity" class="ac-stat-val"></div>
+              <div class="ac-stat-label"><i class="fas fa-circle-dot" style="color:var(--green)"></i> Online Now</div>
+              <div id="guildMembersOnline" class="ac-stat-val" style="color:var(--green)"></div>
             </div>
             <div class="ac-stat-box">
-              <div class="ac-stat-label"><i class="fas fa-bolt" style="color:var(--gold)"></i> Activity</div>
-              <div id="guildActivity" class="ac-stat-val"></div>
+              <div class="ac-stat-label"><i class="fas fa-users-between-lines" style="color:var(--gold)"></i> Total Slots</div>
+              <div id="guildTotalMembers" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-trophy" style="color:var(--gold)"></i> Guild Rank</div>
+              <div id="guildRank" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box">
+              <div class="ac-stat-label"><i class="fas fa-star" style="color:var(--gold)"></i> Score</div>
+              <div id="guildScore" class="ac-stat-val"></div>
+            </div>
+            <div class="ac-stat-box" style="grid-column:span 2">
+              <div class="ac-stat-label"><i class="fas fa-bolt" style="color:var(--gold)"></i> Activity XP</div>
+              <div id="guildActivity" class="ac-stat-val" style="font-size:.75rem"></div>
             </div>
           </div>
 
@@ -1124,14 +1136,17 @@
       }
 
       const g = data.guild;
-      document.getElementById('guildName').textContent       = g.name;
-      document.getElementById('guildIdDisplay').textContent  = 'Guild ID: ' + g.id;
-      document.getElementById('guildLevelBadge').textContent = 'LV ' + g.level;
-      document.getElementById('guildLeader').textContent     = g.leader + (g.leaderId !== '--' ? '  #' + g.leaderId : '');
-      document.getElementById('guildRegion').textContent     = g.region  || '--';
-      document.getElementById('guildMembers').textContent    = g.members || '--';
-      document.getElementById('guildCapacity').textContent   = g.capacity || '--';
-      document.getElementById('guildActivity').textContent   = g.activity || '--';
+      document.getElementById('guildName').textContent          = g.name;
+      document.getElementById('guildIdDisplay').textContent     = 'Guild ID: ' + g.id;
+      document.getElementById('guildLevelBadge').textContent    = 'LV ' + g.level;
+      document.getElementById('guildLeader').textContent        = 'ID: ' + g.leaderId;
+      document.getElementById('guildRegion').textContent        = g.region        || '--';
+      document.getElementById('guildMembers').textContent       = g.members       || '--';
+      document.getElementById('guildMembersOnline').textContent = g.membersOnline || '--';
+      document.getElementById('guildTotalMembers').textContent  = g.totalMembers  || '--';
+      document.getElementById('guildRank').textContent          = g.rank          || '--';
+      document.getElementById('guildScore').textContent         = g.score         || '--';
+      document.getElementById('guildActivity').textContent      = g.activity      || '--';
 
       const descRow = document.getElementById('guildDescRow');
       if (g.description) {

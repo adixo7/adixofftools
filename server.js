@@ -372,18 +372,17 @@ app.get('/api/guild-info', async (req, res) => {
     const regionsToTry = [regionToTry, ...FF_REGIONS.filter(r => r !== regionToTry)];
 
     let guildData = null;
-    let foundRegion = null;
 
     for (const reg of regionsToTry.slice(0, 5)) {
       try {
-        const r = await axios.get('https://freefire-api-six.vercel.app/get_guild_info', {
-          params: { server: reg, guildid: gidStr },
-          timeout: 10000,
+        const r = await axios.get('https://star-guild-info.lovable.app/api/public/info', {
+          params: { clan_id: gidStr, region: reg },
+          headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
+          timeout: 12000,
           validateStatus: () => true,
         });
-        if (r.data && r.data.success && r.data.data) {
-          guildData = r.data.data;
-          foundRegion = reg;
+        if (r.data && r.data.status === 'success') {
+          guildData = r.data;
           break;
         }
       } catch {}
@@ -393,20 +392,27 @@ app.get('/api/guild-info', async (req, res) => {
       return res.json({ success: false, error: 'Guild not found. Please check the Guild ID and try again.' });
     }
 
+    const activityPoints = guildData.guild_activity_points || guildData.xp || 0;
+    const activityDisplay = activityPoints > 0
+      ? activityPoints.toLocaleString()
+      : '--';
+
     return res.json({
       success: true,
       guild: {
-        id: gidStr,
-        name: guildData.name || guildData.guild_name || 'Unknown Guild',
-        level: guildData.level || guildData.guild_level || '--',
-        region: foundRegion || '--',
-        members: guildData.member_num || guildData.members || '--',
-        capacity: guildData.capacity || guildData.max_member || '--',
-        leader: guildData.leader_name || guildData.leader || '--',
-        leaderId: guildData.leader_id || '--',
-        activity: guildData.guild_activity || guildData.activity || '--',
-        description: guildData.description || guildData.guild_description || '',
-        avatarUrl: guildData.guild_logo || guildData.avatar || null,
+        id: String(guildData.guild_id || guildData.clan_id || gidStr),
+        name: guildData.clan_name || 'Unknown Guild',
+        level: guildData.guild_level || guildData.level || '--',
+        region: guildData.region || guildData.requested_region || '--',
+        members: guildData.current_members || '--',
+        totalMembers: guildData.total_members || '--',
+        membersOnline: guildData.members_online || '--',
+        leaderId: String(guildData.guild_leader_id || guildData.leader_id || '--'),
+        activity: activityDisplay,
+        rank: guildData.rank || guildData.guild_position || '--',
+        score: guildData.score || guildData.glory_points || '--',
+        description: guildData.guild_bio || guildData.welcome_message || '',
+        avatarUrl: null,
       },
     });
   } catch (err) {
