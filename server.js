@@ -438,11 +438,17 @@ app.get('/api/send-likes', async (req, res) => {
       validateStatus: () => true,
     });
 
-    if (r.status !== 200 || !r.data) {
-      return res.json({ success: false, error: `API returned status ${r.status}. Try again.` });
+    const d = r.data;
+
+    if (r.status !== 200) {
+      const errMsg = (d && d.error) ? d.error : `Server error (${r.status}). Try again.`;
+      return res.json({ success: false, error: errMsg });
     }
 
-    const d = r.data;
+    if (!d) {
+      return res.json({ success: false, error: 'No response from likes server.' });
+    }
+
     if (d.error) {
       return res.json({ success: false, error: d.error });
     }
