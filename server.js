@@ -421,6 +421,39 @@ app.get('/api/guild-info', async (req, res) => {
   }
 });
 
+app.get('/api/guild-members', async (req, res) => {
+  try {
+    const { token, clan_id, region } = req.query;
+    if (!token || token.trim().length < 10) {
+      return res.json({ success: false, error: 'Please provide a valid token (JWT or Access Token).' });
+    }
+    if (!clan_id || clan_id.trim().length < 3) {
+      return res.json({ success: false, error: 'Please enter a valid Clan ID.' });
+    }
+
+    const apiBase = (process.env.CLAN_MEMBERS_API || '').replace(/\/$/, '');
+    if (!apiBase) {
+      return res.json({ success: false, error: 'Guild Members API is not configured. Please set the CLAN_MEMBERS_API environment variable.' });
+    }
+
+    const r = await axios.get(`${apiBase}/clan_members`, {
+      params: { token: token.trim(), clan_id: clan_id.trim(), region: region || 'IND' },
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
+      timeout: 15000,
+      validateStatus: () => true,
+    });
+
+    if (r.status !== 200 || !r.data) {
+      return res.json({ success: false, error: `API returned status ${r.status}. Check your token and Clan ID.` });
+    }
+
+    return res.json({ success: true, data: r.data });
+  } catch (err) {
+    console.error('Guild members error:', err.message);
+    return res.json({ success: false, error: 'Request failed. Check your token and try again.' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

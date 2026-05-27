@@ -431,6 +431,45 @@
     /* FOOTER */
     .footer{text-align:center;padding:10px;font-size:.6rem;color:var(--txt3);border-top:1px solid var(--bd);background:rgba(8,10,15,0.6);margin-bottom:75px}
     .footer a{color:var(--fire-l);text-decoration:none;font-weight:700}
+
+    /* GUILD TABS */
+    .guild-tabs{display:flex;gap:0;background:rgba(0,0,0,0.35);border:1px solid var(--bd);border-radius:12px;padding:4px;margin-bottom:14px}
+    .gtab{
+      flex:1;padding:9px 10px;border-radius:9px;border:none;cursor:pointer;
+      font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;
+      color:var(--txt3);background:transparent;transition:all .25s;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+    .gtab.active{background:linear-gradient(135deg,rgba(251,191,36,0.22),rgba(245,158,11,0.15));color:var(--gold);border:1px solid rgba(251,191,36,0.3)}
+    .gtab:not(.active):hover{color:var(--txt2);background:rgba(255,255,255,0.04)}
+
+    /* MEMBER LIST */
+    .member-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+    .member-card{
+      background:rgba(0,0,0,0.28);border:1px solid var(--bd);border-radius:10px;
+      padding:10px 13px;display:flex;align-items:center;gap:12px;
+      transition:border-color .2s;
+    }
+    .member-card:hover{border-color:rgba(251,191,36,0.28)}
+    .member-rank{
+      min-width:26px;height:26px;border-radius:7px;
+      background:linear-gradient(135deg,rgba(251,191,36,0.18),rgba(245,158,11,0.1));
+      border:1px solid rgba(251,191,36,0.25);
+      font-family:'Orbitron',sans-serif;font-size:.6rem;font-weight:800;color:var(--gold);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .member-rank.leader{background:linear-gradient(135deg,rgba(251,191,36,0.4),rgba(245,158,11,0.3));border-color:var(--gold)}
+    .member-info{flex:1;min-width:0}
+    .member-name{font-size:.82rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .member-meta{display:flex;gap:8px;margin-top:3px;flex-wrap:wrap}
+    .member-tag{font-size:.58rem;color:var(--txt3);display:flex;align-items:center;gap:3px}
+    .member-tag i{font-size:.55rem;color:var(--gold)}
+    .member-uid{font-family:monospace;font-size:.62rem;color:var(--txt3)}
+    .members-count{
+      background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.22);
+      border-radius:8px;padding:8px 12px;margin-top:10px;margin-bottom:2px;
+      font-size:.7rem;color:var(--gold);font-weight:700;display:flex;align-items:center;gap:6px;
+    }
   </style>
 </head>
 <body>
@@ -782,9 +821,9 @@
 <div id="page-guild" class="page">
 
   <div class="token-hero">
-    <div class="th-badge"><i class="fas fa-shield-halved"></i> Guild Info</div>
-    <div class="th-title">Guild Lookup</div>
-    <div class="th-sub">Enter any Free Fire Guild ID to view guild name, level, members, leader & activity.</div>
+    <div class="th-badge"><i class="fas fa-shield-halved"></i> Guild</div>
+    <div class="th-title">Guild Tools</div>
+    <div class="th-sub">Look up guild info or view the full list of players inside any guild.</div>
     <div class="tag-row">
       <span class="tag">All Regions</span>
       <span class="tag">Guild ID</span>
@@ -793,6 +832,19 @@
   </div>
 
   <div class="con">
+
+    <!-- TABS -->
+    <div class="guild-tabs">
+      <button class="gtab active" id="gtab-info" onclick="switchGuildTab('info')">
+        <i class="fas fa-shield-halved"></i> Guild Info
+      </button>
+      <button class="gtab" id="gtab-members" onclick="switchGuildTab('members')">
+        <i class="fas fa-users"></i> Guild Players
+      </button>
+    </div>
+
+    <!-- TAB: GUILD INFO -->
+    <div id="guild-tab-info">
     <div class="glass-card">
       <div class="slabel"><i class="fas fa-id-badge"></i> Enter Guild ID</div>
       <div class="input-row" style="margin-bottom:8px">
@@ -903,6 +955,64 @@
         </div>
       </div>
     </div>
+
+    </div><!-- /guild-tab-info -->
+
+    <!-- TAB: GUILD PLAYERS -->
+    <div id="guild-tab-members" style="display:none">
+      <div class="glass-card">
+        <div class="slabel"><i class="fas fa-key"></i> Your Token (JWT or Access Token)</div>
+        <div class="input-row" style="margin-bottom:6px">
+          <input type="text" id="membersTokenInput" class="ibox"
+            placeholder="Paste your JWT or Access Token..."
+            autocomplete="off" style="padding-right:38px">
+          <button class="input-x" onclick="document.getElementById('membersTokenInput').value=''"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div style="font-size:.64rem;color:var(--txt3);margin-bottom:14px">
+          <i class="fas fa-circle-info" style="color:var(--gold)"></i> Generate your token using the <span style="color:var(--fire-l);cursor:pointer;font-weight:700" onclick="goPage('token')">Token Generator</span>
+        </div>
+
+        <div class="slabel" style="margin-top:2px"><i class="fas fa-id-badge"></i> Guild / Clan ID</div>
+        <div class="input-row" style="margin-bottom:14px">
+          <input type="number" id="membersClanIdInput" class="ibox"
+            placeholder="e.g. 3001234567"
+            autocomplete="off" style="padding-right:38px">
+          <button class="input-x" onclick="document.getElementById('membersClanIdInput').value=''"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="igrp" style="margin-bottom:14px">
+          <div class="slabel" style="margin-bottom:6px"><i class="fas fa-globe"></i> Select Region</div>
+          <select id="membersRegionSelect" class="ibox">
+            <option value="IND">🇮🇳 India (IND)</option>
+            <option value="ID">🇮🇩 Indonesia (ID)</option>
+            <option value="SG">🇸🇬 Singapore (SG)</option>
+            <option value="BR">🇧🇷 Brazil (BR)</option>
+            <option value="TH">🇹🇭 Thailand (TH)</option>
+            <option value="VN">🇻🇳 Vietnam (VN)</option>
+            <option value="TW">🇹🇼 Taiwan (TW)</option>
+            <option value="ME">🌍 Middle East (ME)</option>
+            <option value="PK">🇵🇰 Pakistan (PK)</option>
+            <option value="BD">🇧🇩 Bangladesh (BD)</option>
+            <option value="US">🇺🇸 North America (US)</option>
+            <option value="CIS">🌐 CIS</option>
+            <option value="RU">🇷🇺 Russia (RU)</option>
+          </select>
+        </div>
+
+        <button id="membersBtn" onclick="lookupGuildMembers()" class="gen-btn" style="background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#fbbf24 100%);box-shadow:0 6px 24px rgba(251,191,36,0.25);color:#000">
+          <i class="fas fa-users"></i> FETCH GUILD PLAYERS
+        </button>
+      </div>
+
+      <!-- MEMBERS RESULT -->
+      <div id="membersResult" style="display:none">
+        <div class="glass-card" style="border-color:rgba(251,191,36,0.28)">
+          <div class="slabel"><i class="fas fa-users"></i> Guild Members</div>
+          <div id="membersCount" class="members-count"></div>
+          <div id="membersList" class="member-list"></div>
+        </div>
+      </div>
+    </div><!-- /guild-tab-members -->
 
   </div>
 
@@ -1113,6 +1223,102 @@
       btn.disabled  = false;
     }
   }
+
+  /* ── GUILD TAB SWITCHER ── */
+  function switchGuildTab(tab) {
+    document.getElementById('guild-tab-info').style.display    = tab === 'info'    ? 'block' : 'none';
+    document.getElementById('guild-tab-members').style.display = tab === 'members' ? 'block' : 'none';
+    document.getElementById('gtab-info').classList.toggle('active',    tab === 'info');
+    document.getElementById('gtab-members').classList.toggle('active', tab === 'members');
+  }
+
+  /* ── GUILD MEMBERS LOOKUP ── */
+  async function lookupGuildMembers() {
+    const token   = document.getElementById('membersTokenInput').value.trim();
+    const clan_id = document.getElementById('membersClanIdInput').value.trim();
+    const region  = document.getElementById('membersRegionSelect').value;
+
+    if (!token)   { toast('Paste your JWT or Access Token first!', true); return; }
+    if (!clan_id) { toast('Enter a Guild / Clan ID first!', true); return; }
+
+    const btn  = document.getElementById('membersBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> FETCHING...';
+    btn.disabled  = true;
+    document.getElementById('membersResult').style.display = 'none';
+
+    try {
+      const res  = await fetch(`/api/guild-members?token=${encodeURIComponent(token)}&clan_id=${encodeURIComponent(clan_id)}&region=${encodeURIComponent(region)}`);
+      const data = await res.json();
+
+      if (!data.success) {
+        toast(data.error || 'Failed to fetch guild members.', true);
+        return;
+      }
+
+      const raw = data.data;
+      let members = [];
+
+      if (Array.isArray(raw))                          members = raw;
+      else if (Array.isArray(raw?.members))            members = raw.members;
+      else if (Array.isArray(raw?.clan_members))       members = raw.clan_members;
+      else if (Array.isArray(raw?.players))            members = raw.players;
+      else if (Array.isArray(raw?.data))               members = raw.data;
+      else if (raw && typeof raw === 'object') {
+        const firstArr = Object.values(raw).find(v => Array.isArray(v));
+        if (firstArr) members = firstArr;
+      }
+
+      if (!members.length) {
+        toast('No members found in the response.', true);
+        return;
+      }
+
+      const countEl = document.getElementById('membersCount');
+      countEl.innerHTML = `<i class="fas fa-users"></i> ${members.length} member${members.length !== 1 ? 's' : ''} found`;
+
+      const listEl = document.getElementById('membersList');
+      listEl.innerHTML = '';
+
+      members.forEach((m, idx) => {
+        const name    = m.nickname || m.name || m.player_name || m.username || ('Player ' + (idx + 1));
+        const uid     = m.uid || m.account_id || m.player_id || m.id || '';
+        const level   = m.level || m.player_level || '';
+        const rank    = m.rank || m.guild_rank || m.member_rank || '';
+        const isLeader = (m.is_leader || m.leader || rank === 'leader' || rank === 'Leader' || rank === 1 || String(rank).toLowerCase() === 'leader');
+
+        let metaHTML = '';
+        if (level)  metaHTML += `<span class="member-tag"><i class="fas fa-star"></i> Lv ${level}</span>`;
+        if (rank && !isLeader) metaHTML += `<span class="member-tag"><i class="fas fa-medal"></i> ${rank}</span>`;
+        if (uid)    metaHTML += `<span class="member-uid">${uid}</span>`;
+
+        listEl.innerHTML += `
+          <div class="member-card">
+            <div class="member-rank ${isLeader ? 'leader' : ''}">${isLeader ? '<i class="fas fa-crown" style="font-size:.65rem"></i>' : (idx + 1)}</div>
+            <div class="member-info">
+              <div class="member-name">${name}${isLeader ? ' <span style="color:var(--gold);font-size:.62rem">(Leader)</span>' : ''}</div>
+              <div class="member-meta">${metaHTML}</div>
+            </div>
+          </div>`;
+      });
+
+      document.getElementById('membersResult').style.display = 'block';
+      document.getElementById('membersResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      toast(`${members.length} members loaded!`);
+    } catch {
+      toast('Network error. Please try again.', true);
+    } finally {
+      btn.innerHTML = orig;
+      btn.disabled  = false;
+    }
+  }
+
+  document.getElementById('membersTokenInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') lookupGuildMembers();
+  });
+  document.getElementById('membersClanIdInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') lookupGuildMembers();
+  });
 
   /* ── GUILD LOOKUP ── */
   async function lookupGuild() {
