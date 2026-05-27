@@ -421,6 +421,47 @@ app.get('/api/guild-info', async (req, res) => {
   }
 });
 
+app.get('/api/send-likes', async (req, res) => {
+  try {
+    const { uid, region } = req.query;
+    if (!uid || uid.trim().length < 5) {
+      return res.json({ success: false, error: 'Please enter a valid UID.' });
+    }
+    if (!region) {
+      return res.json({ success: false, error: 'Please select a region.' });
+    }
+
+    const r = await axios.get('https://star-like-50.vercel.app/like', {
+      params: { uid: uid.trim(), server_name: region.toLowerCase() },
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
+      timeout: 30000,
+      validateStatus: () => true,
+    });
+
+    if (r.status !== 200 || !r.data) {
+      return res.json({ success: false, error: `API returned status ${r.status}. Try again.` });
+    }
+
+    const d = r.data;
+    if (d.error) {
+      return res.json({ success: false, error: d.error });
+    }
+
+    return res.json({
+      success: true,
+      status: d.status ?? 1,
+      nickname:    d.PlayerNickname   || d.nickname    || 'Player',
+      uid:         d.UID              || uid,
+      likesAfter:  d.LikesafterCommand  ?? 0,
+      likesBefore: d.LikesbeforeCommand ?? 0,
+      likesGiven:  d.LikesGivenByAPI    ?? 0,
+    });
+  } catch (err) {
+    console.error('Send likes error:', err.message);
+    return res.json({ success: false, error: 'Request failed. Please try again.' });
+  }
+});
+
 app.get('/api/guild-members', async (req, res) => {
   try {
     const { token, clan_id, region } = req.query;

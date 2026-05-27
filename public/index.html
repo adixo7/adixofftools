@@ -150,6 +150,7 @@
     .ti-blue{background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(59,130,246,0.2));border:1px solid rgba(56,189,248,0.25);color:var(--blue)}
     .ti-teal{background:linear-gradient(135deg,rgba(45,212,191,0.15),rgba(20,184,166,0.2));border:1px solid rgba(45,212,191,0.25);color:var(--teal)}
     .ti-gold{background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(245,158,11,0.2));border:1px solid rgba(251,191,36,0.25);color:var(--gold)}
+    .ti-red{background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(220,38,38,0.2));border:1px solid rgba(239,68,68,0.25);color:var(--red)}
     .tool-info{flex:1}
     .tool-name{font-family:'Orbitron',sans-serif;font-size:.82rem;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:.5px}
     .tool-desc{font-size:.72rem;color:var(--txt3);line-height:1.5}
@@ -505,7 +506,7 @@
 
     <!-- STATS -->
     <div class="stat-strip">
-      <div class="stat-box"><div class="stat-v">4+</div><div class="stat-l">Tools</div></div>
+      <div class="stat-box"><div class="stat-v">5+</div><div class="stat-l">Tools</div></div>
       <div class="stat-box"><div class="stat-v">6+</div><div class="stat-l">Regions</div></div>
       <div class="stat-box"><div class="stat-v">100%</div><div class="stat-l">Free</div></div>
     </div>
@@ -557,6 +558,22 @@
             <span class="ttag">Guild ID</span>
             <span class="ttag">Members</span>
             <span class="ttag">Leader</span>
+            <span class="ttag">All Regions</span>
+          </div>
+        </div>
+        <i class="fas fa-chevron-right tool-arrow"></i>
+      </div>
+
+      <!-- Likes -->
+      <div class="tool-card" onclick="goPage('likes')">
+        <span class="tool-badge-new">LIVE</span>
+        <div class="tool-icon ti-red"><i class="fas fa-heart"></i></div>
+        <div class="tool-info">
+          <div class="tool-name">Send Likes</div>
+          <div class="tool-desc">Send likes to any Free Fire player instantly. Enter UID & region to boost.</div>
+          <div class="tool-tags">
+            <span class="ttag">UID</span>
+            <span class="ttag">Instant</span>
             <span class="ttag">All Regions</span>
           </div>
         </div>
@@ -1019,6 +1036,106 @@
   <div class="footer">&copy; 2025 AdixOffTools — Free Fire Guild Info</div>
 </div>
 
+<!-- ══════════════════════════════
+     PAGE: LIKES
+══════════════════════════════ -->
+<div id="page-likes" class="page">
+
+  <div class="token-hero">
+    <div class="th-badge" style="background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.28);color:#f87171"><i class="fas fa-heart"></i> Send Likes</div>
+    <div class="th-title" style="color:#fff">FF Likes Sender</div>
+    <div class="th-sub">Boost any Free Fire player's likes instantly. Enter their UID and region below.</div>
+    <div class="tag-row">
+      <span class="tag">All Regions</span>
+      <span class="tag">Instant</span>
+      <span class="tag">Free</span>
+    </div>
+  </div>
+
+  <div class="con">
+    <div class="glass-card" style="border-color:rgba(239,68,68,0.2)">
+      <div class="glass-card__inner" style="position:absolute;inset:0;border-radius:18px;overflow:hidden;pointer-events:none">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(239,68,68,0.5),transparent)"></div>
+      </div>
+
+      <div class="slabel"><i class="fas fa-id-badge" style="color:var(--red)"></i> Player UID</div>
+      <div class="input-row" style="margin-bottom:8px">
+        <input type="number" id="likesUidInput" class="ibox"
+          placeholder="e.g. 1234567890"
+          autocomplete="off" style="padding-right:38px">
+        <button class="input-x" onclick="document.getElementById('likesUidInput').value=''"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div style="font-size:.65rem;color:var(--txt3);margin-bottom:14px">
+        <i class="fas fa-circle-info" style="color:var(--red)"></i> Works for all Free Fire regions
+      </div>
+
+      <div class="igrp" style="margin-bottom:16px">
+        <div class="slabel" style="margin-bottom:6px"><i class="fas fa-globe" style="color:var(--red)"></i> Server / Region</div>
+        <select id="likesRegionSelect" class="ibox">
+          <option value="ind">🇮🇳 India (IND)</option>
+          <option value="id">🇮🇩 Indonesia (ID)</option>
+          <option value="sg">🇸🇬 Singapore (SG)</option>
+          <option value="br">🇧🇷 Brazil (BR)</option>
+          <option value="th">🇹🇭 Thailand (TH)</option>
+          <option value="vn">🇻🇳 Vietnam (VN)</option>
+          <option value="me">🌍 Middle East (ME)</option>
+          <option value="bd">🇧🇩 Bangladesh (BD)</option>
+          <option value="na">🇺🇸 North America (NA)</option>
+          <option value="eu">🌐 Europe (EU)</option>
+          <option value="us">🇺🇸 US</option>
+          <option value="uk">🇬🇧 UK</option>
+        </select>
+      </div>
+
+      <button id="likesBtn" onclick="sendLikes()" class="gen-btn" style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 50%,#ef4444 100%);background-size:200% auto;box-shadow:0 6px 24px rgba(239,68,68,0.3)">
+        <i class="fas fa-heart"></i> SEND LIKES
+      </button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="likesResult" style="display:none">
+      <div id="likesResultCard" class="glass-card" style="border-color:rgba(239,68,68,0.3);text-align:center">
+
+        <!-- Icon -->
+        <div id="likesResultIcon" style="font-size:2.8rem;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 14px rgba(239,68,68,0.6))">❤️</div>
+        <div id="likesResultTitle" style="font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:900;color:#fff;letter-spacing:1px;margin-bottom:4px">LIKES SENT!</div>
+        <div id="likesResultSub" style="font-size:.72rem;color:var(--txt3);margin-bottom:16px"></div>
+
+        <!-- Stats table -->
+        <div class="info-table" style="border-color:rgba(239,68,68,0.18);text-align:left">
+          <div class="info-row">
+            <span>Player</span>
+            <span id="lkName" style="color:#f87171;font-weight:700;font-family:monospace"></span>
+          </div>
+          <div class="info-row">
+            <span>UID</span>
+            <span id="lkUid" style="font-family:monospace"></span>
+          </div>
+          <div class="info-row">
+            <span>Likes Before</span>
+            <span id="lkBefore"></span>
+          </div>
+          <div class="info-row">
+            <span>Likes Added</span>
+            <span id="lkGiven" style="color:var(--green);font-family:monospace"></span>
+          </div>
+          <div class="info-row">
+            <span>Likes After</span>
+            <span id="lkAfter" style="color:#f87171;font-family:monospace"></span>
+          </div>
+        </div>
+
+        <button onclick="sendLikes()" class="mbtn mbtn-fire" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 14px rgba(239,68,68,0.3)">
+          <i class="fas fa-heart"></i> Send Again
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">&copy; 2025 AdixOffTools — Free Fire Likes Sender</div>
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="bnav">
   <a class="nitem active" id="nav-home" onclick="goPage('home')">
@@ -1032,6 +1149,9 @@
   </a>
   <a class="nitem" id="nav-guild" onclick="goPage('guild')">
     <div class="niw"><i class="fas fa-shield-halved"></i></div><span>Guild</span>
+  </a>
+  <a class="nitem" id="nav-likes" onclick="goPage('likes')">
+    <div class="niw"><i class="fas fa-heart"></i></div><span>Likes</span>
   </a>
 </nav>
 
@@ -1319,6 +1439,59 @@
   document.getElementById('membersClanIdInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') lookupGuildMembers();
   });
+
+  document.getElementById('likesUidInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendLikes();
+  });
+
+  /* ── SEND LIKES ── */
+  async function sendLikes() {
+    const uid    = document.getElementById('likesUidInput').value.trim();
+    const region = document.getElementById('likesRegionSelect').value;
+    if (!uid) { toast('Enter a Player UID first!', true); return; }
+
+    const btn  = document.getElementById('likesBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> SENDING...';
+    btn.disabled  = true;
+    document.getElementById('likesResult').style.display = 'none';
+
+    try {
+      const res  = await fetch(`/api/send-likes?uid=${encodeURIComponent(uid)}&region=${encodeURIComponent(region)}`);
+      const data = await res.json();
+
+      if (!data.success) {
+        toast(data.error || 'Failed to send likes.', true);
+        return;
+      }
+
+      const isMax = data.status === 2;
+
+      document.getElementById('likesResultIcon').textContent  = isMax ? '💯' : '❤️';
+      document.getElementById('likesResultTitle').textContent = isMax ? 'MAX LIKES REACHED!' : 'LIKES SENT!';
+      document.getElementById('likesResultSub').textContent   = isMax
+        ? 'This player already has the maximum number of likes.'
+        : `Successfully boosted ${data.nickname}'s profile!`;
+
+      document.getElementById('lkName').textContent   = data.nickname  || '--';
+      document.getElementById('lkUid').textContent    = data.uid       || uid;
+      document.getElementById('lkBefore').textContent = data.likesBefore ?? '--';
+      document.getElementById('lkGiven').textContent  = '+' + (data.likesGiven ?? 0);
+      document.getElementById('lkAfter').textContent  = data.likesAfter ?? '--';
+
+      const card = document.getElementById('likesResultCard');
+      card.style.borderColor = isMax ? 'rgba(251,191,36,0.35)' : 'rgba(239,68,68,0.3)';
+
+      document.getElementById('likesResult').style.display = 'block';
+      document.getElementById('likesResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      toast(isMax ? 'Player already at max likes!' : 'Likes sent successfully!', isMax);
+    } catch {
+      toast('Network error. Please try again.', true);
+    } finally {
+      btn.innerHTML = orig;
+      btn.disabled  = false;
+    }
+  }
 
   /* ── GUILD LOOKUP ── */
   async function lookupGuild() {
